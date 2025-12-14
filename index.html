@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>闕文郁 | 個人作品集部落格 (最終優化版)</title>
+    <title>闕文郁 | 個人作品集部落格 (最終 CSS 穩定版)</title>
     <style>
         /*
         ==============================
@@ -12,16 +12,16 @@
         */
         :root {
             /* 顏色變數 */
-            --color-primary: #C3CDE6; /* 主色：典雅的低飽和藍紫 */
-            --color-secondary: #8B94B5; /* 輔助色：較深的藍紫 */
-            --color-text-dark: #333333; /* 主要文字顏色 */
-            --color-text-light: #f5f5f5; /* 淺色文字 (用於深色背景) */
-            --color-background: #FAFAFA; /* 背景色：近純白帶微灰調 */
-            --color-card-background: #ffffff; /* 卡片背景色 */
-            --color-accent: #E6C3CD; /* 強調色：典雅的粉色 */
-            --color-note-background: #fff8e1; /* 便利貼背景色 (淺黃/米白) */
-            --color-note-border: #ffd54f; /* 便利貼邊框色 */
-            --color-note-text: #5d4037; /* 便利貼文字色 (深棕) */
+            --color-primary: #C3CDE6; 
+            --color-secondary: #8B94B5; 
+            --color-text-dark: #333333; 
+            --color-text-light: #f5f5f5; 
+            --color-background: #FAFAFA; 
+            --color-card-background: #ffffff; 
+            --color-accent: #E6C3CD; 
+            --color-note-background: #fff8e1; 
+            --color-note-border: #ffd54f; 
+            --color-note-text: #5d4037; 
 
             /* 字體變數 */
             --font-family-sans: '微軟正黑體', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -85,7 +85,7 @@
             margin-bottom: var(--spacing-sm);
         }
 
-        /* 樣式強化 3: 區塊標題下劃線 */
+        /* 區塊標題下劃線 */
         article > header h2 {
             display: inline-block;
             border-bottom: 3px solid var(--color-primary);
@@ -111,29 +111,29 @@
             padding: var(--spacing-lg) 0;
         }
         
-        /* 修正導覽列遮擋錨點的問題 (重要修補) */
+        /* 修正導覽列遮擋錨點的問題 */
         section:target::before, article:target::before {
             content: "";
             display: block;
-            height: 60px; /* 導覽列的高度 */
-            margin-top: -60px; /* 向上抵銷，保持視覺位置 */
+            height: 60px; 
+            margin-top: -60px; 
             visibility: hidden;
             pointer-events: none;
         }
 
         /*
         ==============================
-        III. 區塊 1：頂部導覽列 (Navbar)
+        III. 區塊 1：頂部導覽列 (Navbar) - 使用 !important 強化權重
         ==============================
         */
         header {
-            position: fixed;
-            top: 0;
+            position: fixed !important; /* 確保固定定位 */
+            top: 0 !important;          /* 確保在頂部 */
             left: 0;
             width: 100%;
             background-color: var(--color-card-background);
             box-shadow: var(--shadow-light);
-            z-index: 1000;
+            z-index: 9999 !important; /* 將層級拉到最高，避免被內容覆蓋 */
         }
 
         .navbar-content {
@@ -168,7 +168,6 @@
             border-bottom: 2px solid var(--color-primary);
         }
 
-        /* 漢堡選單 (Mobile-First 隱藏) */
         .menu-toggle {
             display: none;
             cursor: pointer;
@@ -178,19 +177,17 @@
 
         /*
         ==============================
-        IV. 關於我區塊佈局 (使用 Flexbox 穩定便利貼位置)
+        IV. 關於我區塊佈局 (Flexbox) - 穩定便利貼
         ==============================
         */
-        /* 新增：用於包裹 aside 和 profile-content 的 Flex 容器 */
         .about-flex-wrapper {
-            display: flex; /* 啟用 Flex 佈局 */
+            display: flex; 
             flex-direction: column-reverse; /* Mobile-First: 便利貼在內容下方 */
             gap: var(--spacing-md);
         }
 
-        /* 側邊欄 (便利貼) - 穩定樣式 */
         .note-aside {
-            width: 100%; /* Mobile 佔滿 */
+            width: 100%; 
             padding: var(--spacing-md);
             background-color: var(--color-note-background);
             color: var(--color-note-text);
@@ -207,7 +204,7 @@
         }
 
         .profile-content {
-            width: 100%; /* Mobile 佔滿 */
+            width: 100%; 
             padding: 0; 
         }
 
@@ -398,12 +395,6 @@
 
             .menu-toggle {
                 display: block;
-            }
-            
-            /* Mobile 模式下，個人資訊和便利貼堆疊 */
-            .profile-content > section {
-                flex-direction: column;
-                align-items: center;
             }
         }
     </style>
