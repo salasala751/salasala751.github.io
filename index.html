@@ -99,14 +99,29 @@
         .dropdown { position: relative; }
 
         .dropdown-content {
-            display: none;
-            position: absolute;
-            background: white;
-            top: 100%;
-            left: 0;
-            min-width: 150px;
-            box-shadow: 0 8px 16px rgba(0,0,0,.1);
-        }
+    display: none;
+    position: absolute;
+    background: white;
+    top: 100%;
+    left: 0;
+    min-width: 160px;
+    box-shadow: 0 8px 16px rgba(0,0,0,.1);
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px 14px;
+}
+
+.dropdown-content a:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+.dropdown-content.show {
+    display: block;
+}
 
         .dropdown-content a { padding: 10px; }
 
@@ -222,13 +237,13 @@
                 <li><a href="#study">學習經歷</a></li>
                 <li><a href="#skill">程式能力</a></li>
                 <li class="dropdown">
-                    <a href="#">作品集 ▼</a>
-                    <div class="dropdown-content">
-                        <a href="#music">音樂作品</a>
-                        <a href="#video">視訊作品</a>
-                        <a href="#image">圖片作品</a>
-                    </div>
-                </li>
+    <a href="#" id="portfolioToggle">作品集 ▼</a>
+    <div class="dropdown-content" id="portfolioMenu">
+        <a href="#music">音樂作品</a>
+        <a href="#video">視訊作品</a>
+        <a href="#image">圖片作品</a>
+    </div>
+</li>
                 <li><a href="#more">更多資訊</a></li>
             </ul>
         </nav>
@@ -327,10 +342,18 @@
     const nav = document.getElementById('nav');
     toggle.addEventListener('click', () => nav.classList.toggle('open'));
 
-    document.querySelectorAll('.dropdown').forEach(d => {
-        d.addEventListener('click', () => {
-            d.querySelector('.dropdown-content').classList.toggle('open');
-        });
+    const portfolioToggle = document.getElementById('portfolioToggle');
+    const portfolioMenu = document.getElementById('portfolioMenu');
+
+    portfolioToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        portfolioMenu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!portfolioToggle.contains(e.target) && !portfolioMenu.contains(e.target)) {
+            portfolioMenu.classList.remove('show');
+        }
     });
 </script>
 
