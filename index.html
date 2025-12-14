@@ -2,65 +2,572 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>111316001's blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闕文郁 | 個人作品集部落格</title>
+    <style>
+        /*
+        ==============================
+        I. CSS 變數定義 (Crucial)
+        ==============================
+        */
+        :root {
+            /* 顏色變數 */
+            --color-primary: #C3CDE6; /* 主色：典雅的低飽和藍紫 */
+            --color-secondary: #8B94B5; /* 輔助色：較深的藍紫 */
+            --color-text-dark: #333333; /* 主要文字顏色 */
+            --color-text-light: #f5f5f5; /* 淺色文字 (用於深色背景) */
+            --color-background: #FAFAFA; /* 背景色：近純白帶微灰調 */
+            --color-card-background: #ffffff; /* 卡片背景色 */
+            --color-accent: #E6C3CD; /* 強調色：典雅的粉色 */
+
+            /* 字體變數 */
+            --font-family-sans: '微軟正黑體', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --font-size-base: 1rem;
+            --font-size-large: 1.25rem;
+            --font-size-h1: 2rem;
+            --font-size-h2: 1.75rem;
+            --font-size-h3: 1.5rem;
+
+            /* 間距變數 */
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 3rem;
+            --spacing-xl: 5rem;
+
+            /* 圓角 */
+            --border-radius: 8px;
+
+            /* 陰影 */
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /*
+        ==============================
+        II. 基礎 Reset & 通用樣式
+        ==============================
+        */
+        * {
+            box-sizing: border-box; /* 基礎 Reset */
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            color: var(--color-text-dark);
+            background-color: var(--color-background);
+            padding-top: 60px; /* 為了固定導覽列留出空間 */
+        }
+
+        a {
+            color: var(--color-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--color-accent);
+        }
+
+        h1, h2, h3 {
+            line-height: 1.2;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        h1 { font-size: var(--font-size-h1); }
+        h2 { font-size: var(--font-size-h2); }
+        h3 { font-size: var(--font-size-h3); }
+
+        mark {
+            background-color: var(--color-accent);
+            color: var(--color-text-light);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--spacing-md) 0;
+        }
+
+        section, article {
+            padding: var(--spacing-lg) 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        /*
+        ==============================
+        III. 區塊 1：頂部導覽列 (Navbar)
+        ==============================
+        */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--color-card-background);
+            box-shadow: var(--shadow-light);
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .logo {
+            font-size: var(--font-size-large);
+            font-weight: bold;
+            color: var(--color-secondary);
+        }
+
+        /* 導覽連結 */
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: var(--spacing-md);
+        }
+
+        nav a {
+            padding: var(--spacing-xs) 0;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: var(--color-text-dark);
+            border-bottom: 2px solid transparent; /* 預留底部邊框空間 */
+        }
+
+        nav a:hover {
+            color: var(--color-primary);
+            border-bottom: 2px solid var(--color-primary);
+        }
+
+        /* 漢堡選單 (Mobile-First 隱藏) */
+        .menu-toggle {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: var(--color-text-dark);
+        }
+
+        /*
+        ==============================
+        IV. 主內容區佈局
+        ==============================
+        */
+        main {
+            display: flex;
+            flex-direction: column; /* 預設 Mobile-First: 堆疊 */
+            gap: var(--spacing-md);
+            padding: var(--spacing-md);
+        }
+
+        article {
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        /* 側邊欄 (Mobile 預設在內容下方) */
+        aside {
+            width: 100%;
+            padding: var(--spacing-md);
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-md);
+        }
+
+        aside h3 {
+            color: var(--color-text-light);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: var(--spacing-xs);
+        }
+
+        blockquote {
+            border-left: 5px solid var(--color-accent);
+            padding-left: var(--spacing-sm);
+        }
+
+        /*
+        ==============================
+        V. 區塊 2：三欄式特色介紹卡片 (響應式)
+        ==============================
+        */
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* Mobile: 單欄 */
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .feature-card {
+            background-color: var(--color-card-background);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .feature-card h3 {
+            color: var(--color-secondary);
+            margin-top: var(--spacing-sm);
+        }
+
+        /*
+        ==============================
+        VI. 區塊 3：響應式圖片畫廊 (Grid)
+        ==============================
+        */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        figcaption {
+            background-color: rgba(0, 0, 0, 0.6);
+            color: var(--color-text-light);
+            padding: var(--spacing-xs);
+            text-align: center;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .gallery-item:hover figcaption {
+            opacity: 1;
+        }
+
+        /*
+        ==============================
+        VII. 其他元素樣式
+        ==============================
+        */
+        /* 關於我區塊的 Table */
+        .profile-table {
+            border-spacing: 20px;
+            margin: var(--spacing-md) 0;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--color-primary);
+        }
+
+        /* 學習經歷/程式能力的 Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--spacing-md) 0;
+            box-shadow: var(--shadow-light);
+            border-radius: var(--border-radius);
+            overflow: hidden; /* 確保圓角生效 */
+        }
+
+        th, td {
+            padding: var(--spacing-sm);
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        thead tr {
+            background-color: var(--color-primary);
+            color: var(--color-text-light);
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f8f8f8;
+        }
+
+        /* 媒體標籤 */
+        audio, video {
+            display: block;
+            width: 100%;
+            max-width: 450px;
+            margin: var(--spacing-md) 0;
+            border-radius: var(--border-radius);
+        }
+
+        /* 嵌入 PDF */
+        embed {
+            display: block;
+            width: 100%;
+            max-width: 800px;
+            margin: var(--spacing-md) auto;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+        }
+
+        /* 地圖 */
+        iframe {
+            display: block;
+            width: 100%;
+            max-width: 1000px;
+            height: 400px;
+            margin: var(--spacing-md) auto;
+            border: none !important;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+        }
+
+        /* 互動元素 */
+        details {
+            background-color: var(--color-card-background);
+            padding: var(--spacing-md);
+            border: 1px solid var(--color-primary);
+            border-radius: var(--border-radius);
+            margin-top: var(--spacing-md);
+        }
+
+        summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--color-secondary);
+        }
+
+        /*
+        ==============================
+        VIII. 頁尾區
+        ==============================
+        */
+        footer {
+            background-color: var(--color-secondary);
+            color: var(--color-text-light);
+            text-align: center;
+            padding: var(--spacing-md) 0;
+            margin-top: var(--spacing-lg);
+        }
+
+        footer p, footer time {
+            margin: var(--spacing-xs) 0;
+        }
+
+
+        /*
+        ==============================
+        IX. 響應式設計 (RWD - Mobile-First 媒體查詢)
+        ==============================
+        */
+
+        /* 平板 (Tablet) - 寬度大於 768px */
+        @media (min-width: 768px) {
+            /* 導覽列調整 */
+            .navbar-content {
+                padding: var(--spacing-sm) var(--spacing-lg);
+            }
+
+            /* 主內容區佈局 (使用 Grid 實現兩欄式佈局，並拒絕 float) */
+            main {
+                display: grid;
+                grid-template-columns: 3fr 1fr; /* 右側側邊欄佔 1/4 */
+                gap: var(--spacing-lg);
+                padding: var(--spacing-lg) 0;
+            }
+
+            /* 側邊欄在右側 */
+            aside {
+                grid-column: 2 / 3;
+                grid-row: 1 / span 5; /* 讓側邊欄跨越多個區塊，但僅在主內容區域內 */
+                margin-top: 0;
+            }
+
+            article {
+                grid-column: 1 / 2;
+                width: auto;
+            }
+
+            /* 三欄式特色介紹 */
+            .features-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            /* 圖片畫廊調整 */
+            .gallery-grid {
+                gap: var(--spacing-lg);
+            }
+        }
+
+        /* 桌機 (Desktop) - 寬度大於 1024px */
+        @media (min-width: 1024px) {
+            :root {
+                --font-size-h1: 2.5rem;
+                --font-size-h2: 2rem;
+            }
+            
+            /* 關於我圖片調整 */
+            .profile-image {
+                width: 250px;
+                height: 250px;
+            }
+
+            /* 確保側邊欄不會因為內容變少而太短 */
+            main {
+                grid-template-rows: auto 1fr;
+            }
+        }
+
+        /* Mobile 導覽列顯示漢堡選單 */
+        @media (max-width: 767px) {
+            nav {
+                display: none; /* 預設隱藏導覽列 */
+                position: absolute;
+                top: 60px; /* 位於 header 下方 */
+                left: 0;
+                width: 100%;
+                background-color: var(--color-card-background);
+                box-shadow: var(--shadow-light);
+                z-index: 999;
+                padding: var(--spacing-sm) 0;
+            }
+
+            nav.open {
+                display: block; /* JS 控制顯示 */
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+            }
+
+            nav a {
+                display: block;
+                width: 100%;
+                padding: var(--spacing-sm);
+                text-align: center;
+                border-bottom: 1px solid #eee;
+            }
+
+            .menu-toggle {
+                display: block; /* 顯示漢堡選單按鈕 */
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- 頁頭區 -->
     <header>
-        <h1>闕文郁的個人部落格</h1>
-        <nav>
-            <a href="#section1">關於我</a>
-            <a href="#section2">學習經歷</a>
-            <a href="#section3">程式能力</a>
-            <a href="#section4">音樂作品</a>
-            <a href="#section5">視訊作品</a>
-            <a href="#section6">圖片作品</a>
-            <a href="#section7">更多資訊</a>
-        </nav>
+        <div class="navbar-content">
+            <h1 class="logo">闕文郁 Blog</h1>
+            
+            <div class="menu-toggle" id="menu-toggle">☰</div>
+
+            <nav id="navbar-links">
+                <ul>
+                    <li><a href="#section-hero">首頁</a></li>
+                    <li><a href="#section1">關於我</a></li>
+                    <li><a href="#section-features">專案特色</a></li>
+                    <li><a href="#section4">作品集</a></li>
+                    <li><a href="#section7">更多資訊</a></li>
+                    <li><a href="#section-contact">聯絡我</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
     
-    <!-- 主內容區 -->
-    <main>
-        <!-- 側邊欄補充資訊 -->
-        <aside style="width:30%; float:right;">
+    <main class="container">
+        
+        <aside>
             <blockquote>
-                <h3>便利貼</h3>
-                <p>多媒體概論課程的學習成果作品集，將在此呈現。</p>
+                <h3>📝 便利貼</h3>
+                <p>多媒體概論課程的學習成果作品集，將在此呈現。這裡是紀錄學習和生活點滴的典雅小站。</p>
+                <p><strong>風格關鍵詞：</strong> 典雅、清新、資訊科學與人文藝術的交會。</p>
             </blockquote>
         </aside>
 
-        <!-- 個人介紹 -->
-        <article id="section1">
+        <article id="section-hero">
             <header>
-                <h2>關於我</h2>
-                <p>在此部落格中，將分享我在學習上及生活中的點滴。</p>
+                <h2>✨ 歡迎來到我的學習空間</h2>
+                <p>本作品集收錄了我在資訊科學學習、音樂創作、視覺藝術上的主要成果。</p>
             </header>
-            <section>
-                <table cellspacing="20">
-                    <tr>
-                        <td><img src="assert/melody.png" alt="melody picture" width="250"></td>
-                        <td><h1>闕文郁</h1><p>
-                            <em><strong><a href="https://www.ntue.edu.tw/">國立台北教育大學</a></strong>學生</em></p></td>
-                    </tr>
-                </table>
-            </section>
-            <section>
-                <p>我是一位大學生，目前就讀於<mark>資訊科學系</mark>，同時對文學及藝術都有深厚的興趣，因此也時常選修相關課程以豐富眼界</p>
-                <p>此外，我喜歡追劇、追星、畫畫等。</p>
+            
+            <section class="features-grid" id="section-features">
+                <div class="feature-card">
+                    <span style="font-size:2rem;">💻</span>
+                    <h3>程式思維</h3>
+                    <p>專注於 Java 和 C++ 的實作能力，致力於演算法與資料結構的優化。</p>
+                </div>
+                <div class="feature-card">
+                    <span style="font-size:2rem;">🎨</span>
+                    <h3>多媒體創作</h3>
+                    <p>具備音訊、視訊、平面圖像的製作能力，實現技術與藝術的跨界融合。</p>
+                </div>
+                <div class="feature-card">
+                    <span style="font-size:2rem;">📚</span>
+                    <h3>跨領域探索</h3>
+                    <p>熱衷於文學、藝術等領域，透過跨學科的視角豐富作品的深度與廣度。</p>
+                </div>
             </section>
         </article>
 
-        <!-- 學習經歷介紹 -->
+        <article id="section1">
+            <header>
+                <h2>🙋‍♀️ 關於我</h2>
+                <p>在此部落格中，將分享我在學習上及生活中的點滴。我是一位大學生，同時對文學及藝術都有深厚的興趣。</p>
+            </header>
+            <section style="display: flex; align-items: center; gap: 20px;">
+                <img src="https://source.unsplash.com/random/250x250/?portrait,student" alt="個人肖像照" class="profile-image">
+                <div>
+                    <h1>闕文郁</h1>
+                    <p>
+                        <em><strong><a href="https://www.ntue.edu.tw/">國立台北教育大學</a></strong>學生</em>
+                    </p>
+                    <p>目前就讀於<mark>資訊科學系</mark>，也時常選修相關課程以豐富眼界。興趣包括追劇、追星、畫畫等。</p>
+                </div>
+            </section>
+        </article>
+
         <article id="section2">
             <header>
-                <h2>學習經歷</h2>
+                <h2>🎓 學習經歷</h2>
             </header>
             <section>
                 <table>
                     <thead>
                         <tr>
-                            <th>Dates</th>
-                            <th>School</th>
+                            <th>起訖年份</th>
+                            <th>學校/機構</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -69,7 +576,7 @@
                             <td>台北市立內湖高級中學</td>
                         </tr>
                         <tr>
-                            <td>2024-</td>
+                            <td>2024-迄今</td>
                             <td>國立台北教育大學資訊科學系</td>
                         </tr>
                     </tbody>
@@ -77,96 +584,137 @@
             </section>
         </article>
 
-        <!-- 技能介紹 -->
         <article id="section3">
             <header>
-                <h2>程式能力</h2>
+                <h2>🛠 程式能力</h2>
+                <p>我在不同程式語言的熟練度概況。</p>
             </header>
             <section>
                 <table>
                     <tr>
                         <td>Java</td>
-                        <td>⭐⭐</td>
+                        <td>⭐⭐ (熟悉物件導向與基礎演算法)</td>
                     </tr>
                     <tr>
                         <td>C++</td>
-                        <td>⭐⭐</td>
+                        <td>⭐⭐ (具備 LeetCode 刷題能力)</td>
                     </tr>
                     <tr>
                         <td>Python</td>
-                        <td>⭐</td>
+                        <td>⭐ (基礎語法與資料分析應用)</td>
+                    </tr>
+                    <tr>
+                        <td>HTML/CSS</td>
+                        <td>⭐⭐⭐ (具備響應式設計能力)</td>
                     </tr>
                 </table>
             </section>
         </article>
 
-        <!-- 音樂作品介紹 -->
         <article id="section4">
-            <h2>音訊介紹</h2>
+            <h2>🎶 音訊作品</h2>
+            <p>這是我在多媒體課程中嘗試創作的音樂作品。</p>
             <audio controls>
-                <!-- 改為你的作品 -->
-                <source src="assert/Alive.mp3" type="audio/mpeg">
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                您的瀏覽器不支援 audio 元素。
             </audio>
         </article>
 
-        <!-- 視訊作品介紹 -->
         <article id="section5">
-            <h2>視訊介紹</h2>
-            <video controls width="300">
-                <!-- 改為你的作品 -->
-                <source src="assets/video/Whispers in the Trees 1.mp4" type="audio/mpeg">                
-            </video>
-            &nbsp;&nbsp;<!-- 添加間隔 -->
-            <video controls width="300">
-                <!-- 改為你的作品 -->
-                <source src="assets/video/Rise Up and Shine.mp4" type="video/mp4">
-            </video>
+            <h2>🎬 視訊作品</h2>
+            <p>兩部短片展示了我的剪輯與敘事能力。</p>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
+                <video controls width="100%" max-width="450">
+                    <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
+                    您的瀏覽器不支援 video 元素。
+                </video>
+                <video controls width="100%" max-width="450">
+                    <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
+                    您的瀏覽器不支援 video 元素。
+                </video>
+            </div>
         </article>
 
-        <!-- 圖片作品集介紹與描述 -->
         <article id="section6">
-            <h2>Gemini練習</h2>
-            <figure style="display:inline-block;">
-                <!-- 改為你的作品 -->
-                <img src="assert/Gemini_comic.png" alt="貝殼沙灘" width="450">
-                <figcaption>貝殼沙灘</figcaption>
-            </figure>
-            <figure style="display:inline-block;">
-                <!-- 改為你的作品 -->
-                <img src="assert/Gemini_japan.png" alt="龍宮礁島" width="450">
-                <figcaption>龍宮礁島</figcaption>
-            </figure>
+            <h2>🖼 視覺藝術作品 (Gemini練習)</h2>
+            <p>透過 AI 協作工具 Gemini 進行的圖像創作與練習成果。</p>
+            <section class="gallery-grid">
+                <figure class="gallery-item">
+                    <img src="https://source.unsplash.com/random/600x400/?beach,shells" alt="貝殼沙灘">
+                    <figcaption>貝殼沙灘：低飽和海景的寧靜</figcaption>
+                </figure>
+                <figure class="gallery-item">
+                    <img src="https://source.unsplash.com/random/600x400/?japan,island" alt="龍宮礁島">
+                    <figcaption>龍宮礁島：日式幻想風格的礁石群</figcaption>
+                </figure>
+                <figure class="gallery-item">
+                    <img src="https://source.unsplash.com/random/600x400/?abstract,geometric" alt="抽象幾何">
+                    <figcaption>抽象幾何：探索色彩與結構的平衡</figcaption>
+                </figure>
+            </section>
         </article>
 
-        <!-- 嵌入PDF文件 -->
         <article id="section7">
-            <h2>更多資訊</h2>
-            <!-- 改為你的作品 -->
-            <embed src="assets/pdf/llm models.pdf" width="500" height="600">
+            <h2>🔗 更多資訊</h2>
+            
+            <h3>LLM 模型學習報告</h3>
+            <embed src="https://example.com/assets/pdf/llm-models.pdf" width="500" height="600" type="application/pdf">
+            <p>（此處為佔位 PDF 連結，請替換為您實際的 PDF 檔案路徑）</p>
+
+            <details>
+                <summary>點擊查看學習提示</summary>
+                <p>建議攜帶筆記本與筆，方便隨時記錄課堂中的關鍵知識點與靈感，並保持對新興技術的好奇心。</p>
+            </details>
+
+            <h3>地點概覽</h3>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3615.0312674291847!2d121.5420310753697!3d25.03606707780076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a98af1945199%3A0x6a1f185d46e30925!2sNational%20Taipei%20University%20of%20Education!5e0!3m2!1sen!2stw!4v1701290000000!5m2!1sen!2stw" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            
+            <p id="section-contact"><strong>聯絡地址：</strong> 國立台北教育大學 (地點示意)</p>
         </article>
-
-        <!-- 互動元素 -->
-        <details>
-            <summary>點擊查看學習提示</summary>
-            <p>建議攜帶筆記本與筆，方便隨時記錄課堂中的關鍵知識點與靈感。</p>
-        </details>
-
-        <!-- 加入地圖 -->
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3615.2784024338266!2d121.54206247541927!3d25.02462437782254!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a908a8232611%3A0xeebfb2d71a5025c7!2z5ZyL56uL6Ie65YyX5pWZ6IKy5aSn5a24!5e0!3m2!1szh-TW!2stw!4v1731827435609!5m2!1szh-TW!2stw" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>        
+        
     </main>
     
-    <!-- 頁尾區 -->
     <footer>
         <p>聯絡我：s111316001@stu.ntue.edu.tw</p>
         <time datetime="2025-11-29">最後更新日期：2025年11月29日</time>
+        <p>&copy; 2025 闕文郁. All rights reserved.</p>
     </footer>
+
+    <script>
+        // 邏輯必須封裝在函數中
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('menu-toggle');
+            const navbarLinks = document.getElementById('navbar-links');
+            const navLinks = navbarLinks.querySelectorAll('a');
+
+            /**
+             * 處理漢堡選單的開關切換
+             */
+            const toggleMenu = () => {
+                navbarLinks.classList.toggle('open');
+            };
+
+            /**
+             * 處理點擊導覽連結 (在 Mobile 模式下)
+             */
+            const handleNavLinkClick = () => {
+                // 檢查視窗寬度是否小於 768px (與 CSS 媒體查詢保持一致)
+                if (window.innerWidth <= 767) {
+                    navbarLinks.classList.remove('open');
+                }
+            };
+
+            // 1. 漢堡選單事件監聽器
+            if (menuToggle) {
+                menuToggle.addEventListener('click', toggleMenu);
+            }
+
+            // 2. 導覽列連結點擊事件監聽器
+            // 點擊連結後，如果是在 Mobile 模式，自動關閉選單
+            navLinks.forEach(link => {
+                link.addEventListener('click', handleNavLinkClick);
+            });
+        });
+    </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
