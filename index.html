@@ -3,605 +3,336 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>闕文郁 | 個人作品集部落格 (線框圖實現)</title>
+    <title>闕文郁 | 個人作品集部落格</title>
+
     <style>
-        /*
-        ==============================
-        I. CSS 變數定義 (Crucial)
-        ==============================
-        */
         :root {
-            /* 顏色變數 */
-            --color-primary: #C3CDE6; /* 主色：典雅的低飽和藍紫 */
-            --color-secondary: #8B94B5; /* 輔助色：較深的藍紫 */
-            --color-text-dark: #333333; /* 主要文字顏色 */
-            --color-text-light: #f5f5f5; /* 淺色文字 (用於深色背景) */
-            --color-background-main: #FAFAFA; /* 主背景色：微灰調 */
-            --color-background-portfolio: #f0f4f9; /* 作品集背景色 (與主背景不同) */
-            --color-card-background: #ffffff; /* 卡片背景色 */
-            --color-accent: #E6C3CD; /* 強調色：典雅的粉色 */
-            --color-note-background: #fff8e1; /* 便利貼背景色 */
-            --color-note-border: #ffd54f; /* 便利貼邊框色 */
-            --color-note-text: #5d4037; /* 便利貼文字色 */
+            --color-primary: #C3CDE6;
+            --color-secondary: #8B94B5;
+            --color-text-dark: #333;
+            --color-text-light: #fff;
+            --color-bg-main: #FAFAFA;
+            --color-bg-portfolio: #f0f4f9;
+            --color-card: #ffffff;
+            --color-note-bg: #fff8e1;
+            --color-note-border: #ffd54f;
 
-            /* 間距變數 */
-            --spacing-sm: 1rem;
-            --spacing-md: 1.5rem;
-            --spacing-lg: 3rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 3rem;
 
-            /* 圓角 */
-            --border-radius: 8px;
+            --radius: 8px;
         }
 
-        /*
-        ==============================
-        II. 基礎 Reset & 通用樣式
-        ==============================
-        */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: '微軟正黑體', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            font-size: 1rem;
-            line-height: 1.6;
+            font-family: "微軟正黑體", Arial, sans-serif;
+            background: var(--color-bg-main);
             color: var(--color-text-dark);
-            background-color: var(--color-background-main);
-            padding-top: 60px; /* 為固定導覽列留出空間 */
+            padding-top: 60px;
+            line-height: 1.6;
         }
 
         .container {
             width: 90%;
             max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        section, article {
-            padding: var(--spacing-lg) 0;
-            position: relative; /* 用於錨點修正 */
-        }
-
-        /* 修正導覽列遮擋錨點的問題 */
-        section:target::before, article:target::before {
-            content: "";
-            display: block;
-            height: 60px; 
-            margin-top: -60px; 
-            visibility: hidden;
-            pointer-events: none;
+            margin: auto;
         }
 
         h2 {
-            display: inline-block;
             border-bottom: 3px solid var(--color-primary);
-            padding-bottom: 5px;
-            margin-bottom: var(--spacing-md);
+            display: inline-block;
+            margin-bottom: var(--space-md);
         }
 
-        /*
-        ==============================
-        III. 頂部導覽列 (Navbar)
-        ==============================
-        */
+        /* ================= 導覽列 ================= */
         header {
-            position: fixed !important;
-            top: 0 !important;
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            background-color: var(--color-card-background);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            z-index: 9999 !important; /* 最高層級 */
+            background: var(--color-card);
+            box-shadow: 0 4px 12px rgba(0,0,0,.05);
+            z-index: 999;
         }
 
-        .navbar-content {
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 var(--spacing-md);
             min-height: 60px;
         }
 
-        .logo {
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: var(--color-secondary);
-        }
+        .logo { font-weight: bold; color: var(--color-secondary); }
 
-        /* 導覽連結 */
         nav ul {
             list-style: none;
             display: flex;
-            gap: 0; /* 移除 gap，使用 padding 控制間距 */
         }
 
         nav a {
             display: block;
-            padding: 20px 15px; /* 提供足夠的點擊區域 */
-            font-weight: 500;
-            color: var(--color-text-dark);
+            padding: 18px 14px;
             text-decoration: none;
-            position: relative;
+            color: var(--color-text-dark);
         }
-        
-        nav a:hover, nav a.active {
+
+        nav a:hover {
             color: var(--color-primary);
             border-bottom: 3px solid var(--color-primary);
         }
 
-        /* 下拉式選單樣式 */
-        .dropdown {
-            position: relative;
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
         }
+
+        /* 下拉選單 */
+        .dropdown { position: relative; }
 
         .dropdown-content {
             display: none;
             position: absolute;
+            background: white;
             top: 100%;
             left: 0;
-            min-width: 160px;
-            background-color: var(--color-card-background);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            z-index: 1;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            min-width: 150px;
+            box-shadow: 0 8px 16px rgba(0,0,0,.1);
+        }
+
+        .dropdown-content a { padding: 10px; }
+
+        /* ================= Hero ================= */
+        .hero {
+            margin-top: var(--space-lg);
+            height: 400px;
+            border-radius: var(--radius);
             overflow: hidden;
         }
 
-        .dropdown-content a {
-            padding: 12px 16px;
-            display: block;
-            text-align: left;
-            border-bottom: none;
-        }
-
-        .dropdown-content a:hover {
-            background-color: var(--color-primary);
-            color: var(--color-text-light);
-            border-bottom: none;
-        }
-        
-        /* 箭頭符號 */
-        .dropdown > a::after {
-            content: ' ▼';
-            font-size: 0.8em;
-        }
-
-        /*
-        ==============================
-        IV. 區塊一：關於我 (Flexbox 佈局)
-        ==============================
-        */
-        .about-flex-wrapper {
-            display: flex; 
-            flex-direction: column; /* Mobile: 堆疊 */
-            gap: var(--spacing-md);
-        }
-        
-        .profile-main-content {
-            display: flex;
-            flex-direction: column; 
-            gap: var(--spacing-md);
-            flex-grow: 1;
-        }
-        
-        .profile-detail {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .note-aside {
-            order: 1; /* Mobile 放在頂部 */
-            padding: var(--spacing-md);
-            background-color: var(--color-note-background);
-            color: var(--color-note-text);
-            border-radius: var(--border-radius);
-            border: 1px solid var(--color-note-border);
-            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); 
-        }
-        
-        .profile-photo {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
+        .hero img {
+            width: 100%;
+            height: 100%;
             object-fit: cover;
+        }
+
+        section { padding: var(--space-lg) 0; }
+
+        /* ================= 關於我 ================= */
+        .about {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .profile {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .profile img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
             border: 4px solid var(--color-primary);
         }
 
-        /*
-        ==============================
-        V. 區塊二/三：學習經歷與程式能力 (並列 Grid 佈局)
-        ==============================
-        */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobile: 單欄 */
-            gap: var(--spacing-lg);
-            padding: var(--spacing-lg) 0;
+        .note {
+            background: var(--color-note-bg);
+            border: 1px solid var(--color-note-border);
+            padding: var(--space-md);
+            border-radius: var(--radius);
         }
 
-        /*
-        ==============================
-        VI. 區塊四/五/六：作品集 (不規則線條與背景色)
-        ==============================
-        */
-        #section-portfolio-wrapper {
-            background-color: var(--color-background-portfolio); 
-            padding-bottom: 0; /* 讓不規則線條可以銜接 */
-            margin-bottom: 0;
-            overflow: hidden; /* 確保偽元素不會影響外部滾動 */
-        }
-        
-        /* 6. 不規則線條 (使用偽元素實現) */
-        #section-portfolio-wrapper::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* ================= 表格 ================= */
+        table {
             width: 100%;
-            height: 50px;
-            background: var(--color-background-main);
-            /* 使用 SVG 般的波浪形狀 - 頂部波浪 */
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 50%);
-            z-index: 1;
+            border-collapse: collapse;
         }
 
-        #section-portfolio-wrapper::after {
-            content: "";
-            position: absolute;
-            bottom: -10px; /* 略微超出底部 */
-            left: 0;
-            width: 100%;
-            height: 150px;
-            background: var(--color-background-main);
-            /* 底部反向波浪 */
-            clip-path: ellipse(60% 100% at 50% 100%);
-            z-index: 1;
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
         }
 
-        .portfolio-content {
-            position: relative; /* 確保內容位於波浪之上 */
-            z-index: 2;
-            padding-bottom: 100px; /* 留給底部波浪空間 */
+        th {
+            background: var(--color-primary);
+            color: white;
         }
 
-        .media-flex-row {
+        /* ================= 作品集 ================= */
+        #portfolio {
+            background: var(--color-bg-portfolio);
+        }
+
+        .media {
             display: flex;
-            flex-direction: column; /* Mobile 堆疊 */
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-lg);
+            flex-direction: column;
+            gap: var(--space-md);
         }
 
-        .media-player-container {
-            width: 100%;
-        }
-
-        .text-description {
-            width: 100%;
-        }
-
-        /* 圖片作品排版 */
-        .image-gallery-grid {
+        .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: var(--spacing-md);
+            grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+            gap: var(--space-md);
         }
 
-        .image-item figure {
-            margin: 0;
-            padding: 0;
-        }
+        .gallery img { width: 100%; border-radius: var(--radius); }
 
-        .image-item img {
-            width: 100%;
-            height: auto;
-            display: block;
-            border-radius: var(--border-radius);
-        }
-
-        .image-item figcaption {
-            margin-top: var(--spacing-xs);
+        footer {
+            background: var(--color-card);
+            padding: var(--space-md) 0;
             text-align: center;
-            font-size: 0.9em;
-            color: var(--color-secondary);
         }
 
-        /*
-        ==============================
-        VII. 響應式設計 (RWD)
-        ==============================
-        */
-        @media (min-width: 768px) {
-            /* 關於我：便利貼在右側 */
-            .about-flex-wrapper {
-                flex-direction: row; 
-                align-items: flex-start;
-            }
-            .note-aside {
-                order: 2; /* 放在右側 */
-                width: 30%;
-                min-width: 250px;
-            }
-            .profile-main-content {
-                order: 1; 
-                width: 70%;
-            }
-            
-            /* 學習經歷與程式能力：並排 */
-            .skills-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        /* ================= RWD ================= */
+        @media (max-width: 767px) {
+            nav { display: none; }
+            nav.open { display: block; }
+            nav ul { flex-direction: column; }
+            .menu-toggle { display: block; }
+        }
 
-            /* 音樂/視訊作品：左右兩欄 */
-            .media-flex-row {
-                flex-direction: row;
-                align-items: flex-start;
-            }
-            .media-player-container {
-                width: 50%;
-            }
-            .text-description {
-                width: 50%;
-            }
+        @media (min-width: 768px) {
+            .about { flex-direction: row; }
+            .note { width: 30%; }
+            .media { flex-direction: row; }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="navbar-content container">
-            <h1 class="logo">闕文郁 Blog</h1>
-            
-            <div class="menu-toggle" id="menu-toggle">☰</div>
 
-            <nav id="navbar-links">
-                <ul>
-                    <li><a href="#section-hero">首頁</a></li>
-                    <li><a href="#section1">關於我</a></li>
-                    <li><a href="#section2">學習經歷</a></li>
-                    <li><a href="#section3">程式能力</a></li>
-                    
-                    <li class="dropdown">
-                        <a href="#" id="portfolio-toggle">作品集 ▼</a>
-                        <div class="dropdown-content" id="portfolio-dropdown">
-                            <a href="#section4">音樂作品</a>
-                            <a href="#section5">視訊作品</a>
-                            <a href="#section6">圖片作品</a>
-                        </div>
-                    </li>
-                    
-                    <li><a href="#section7">更多資訊</a></li>
-                    <li><a href="#section-contact">聯絡我</a></li>
-                </ul>
-            </nav>
+<header>
+    <div class="container navbar">
+        <div class="logo">闕文郁 Blog</div>
+        <div class="menu-toggle" id="menuToggle">☰</div>
+        <nav id="nav">
+            <ul>
+                <li><a href="#home">首頁</a></li>
+                <li><a href="#about">關於我</a></li>
+                <li><a href="#study">學習經歷</a></li>
+                <li><a href="#skill">程式能力</a></li>
+                <li class="dropdown">
+                    <a href="#">作品集 ▼</a>
+                    <div class="dropdown-content">
+                        <a href="#music">音樂作品</a>
+                        <a href="#video">視訊作品</a>
+                        <a href="#image">圖片作品</a>
+                    </div>
+                </li>
+                <li><a href="#more">更多資訊</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+
+    <section id="home">
+        <h2>首頁</h2>
+        <div class="hero">
+            <img src="https://source.unsplash.com/random/1200x400/?campus,student" alt="首頁圖片">
         </div>
-    </header>
-    
-    <main class="container">
-        
-        <article id="section-hero">
-            <header>
-                <h2>✨ 首頁</h2>
-                <p>本作品集收錄了我在資訊科學學習、音樂創作、視覺藝術上的主要成果。</p>
-            </header>
-            
-            <section class="slider-container" style="height: 400px; background-color: var(--color-secondary); display:flex; justify-content:center; align-items:center; color: var(--color-text-light); border-radius: var(--border-radius);">
-                <span style="font-size: 1.5rem;">[輪播照片區域 - 點擊左右箭頭切換]</span>
-            </section>
-        </article>
+    </section>
 
-        <article id="section1">
-            <header>
-                <h2>🙋‍♀️ 關於我</h2>
-            </header>
-            
-            <div class="about-flex-wrapper">
-                
-                <aside class="note-aside">
-                    <blockquote>
-                        <h3>📝 便利貼</h3>
-                        <p>多媒體概論課程學習成果集，歡迎透過這裡認識我，並提供寶貴意見。</p>
-                    </blockquote>
-                </aside>
-                
-                <section class="profile-main-content">
-                    <div class="profile-detail">
-                        <img src="https://source.unsplash.com/random/250x250/?portrait,student" alt="個人肖像照" class="profile-photo">
-                        <div>
-                            <h1>闕文郁</h1>
-                            <p>
-                                <em><strong>國立台北教育大學</strong>學生</em>
-                            </p>
-                        </div>
+    <section id="about">
+        <h2>關於我</h2>
+        <div class="about">
+            <div>
+                <div class="profile">
+                    <img src="https://source.unsplash.com/random/300x300/?portrait" alt="大頭照">
+                    <div>
+                        <h3>闕文郁</h3>
+                        <p>國立台北教育大學 資訊科學系</p>
                     </div>
-                    <p>我是一位熱愛創造的大學生，興趣廣泛，從程式設計到繪畫追星都有涉略。目前就讀於<mark>資訊科學系</mark>，同時對文學及藝術都有深厚的興趣。</p>
-                    <p>興趣：追劇、追星、畫畫等。</p>
-                </section>
+                </div>
+                <p>我是一名熱愛創作與學習的學生，對程式設計、多媒體與藝術創作充滿興趣。</p>
             </div>
-        </article>
-        
-        <section id="section-portfolio-wrapper">
-            <div class="container portfolio-content">
+            <aside class="note">
+                <h4>便利貼</h4>
+                <p>本網站為多媒體課程作品集，呈現我的學習與創作成果。</p>
+            </aside>
+        </div>
+    </section>
 
-                <section class="skills-grid">
-                    <div id="section2">
-                        <header>
-                            <h2>🎓 學習經歷</h2>
-                        </header>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>起訖年份</th>
-                                    <th>學校/機構</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr> <td>2021-2024</td> <td>台北市立內湖高級中學</td> </tr>
-                                <tr> <td>2024-迄今</td> <td>國立台北教育大學資訊科學系</td> </tr>
-                            </tbody>
-                        </table>
-                    </div>
+    <section id="study">
+        <h2>學習經歷</h2>
+        <table>
+            <tr><th>年份</th><th>學校</th></tr>
+            <tr><td>2021-2024</td><td>台北市立內湖高中</td></tr>
+            <tr><td>2024-迄今</td><td>國立台北教育大學</td></tr>
+        </table>
+    </section>
 
-                    <div id="section3">
-                        <header>
-                            <h2>🛠 程式能力</h2>
-                        </header>
-                        <table>
-                            <tr> <td>Java</td> <td>⭐⭐</td> </tr>
-                            <tr> <td>C++</td> <td>⭐⭐</td> </tr>
-                            <tr> <td>Python</td> <td>⭐</td> </tr>
-                        </table>
-                    </div>
-                </section>
+    <section id="skill">
+        <h2>程式能力</h2>
+        <table>
+            <tr><th>語言</th><th>程度</th></tr>
+            <tr><td>Java</td><td>⭐⭐</td></tr>
+            <tr><td>C++</td><td>⭐⭐</td></tr>
+            <tr><td>Python</td><td>⭐</td></tr>
+        </table>
+    </section>
 
-                <section id="section4">
-                    <header>
-                        <h2>🎶 音樂作品</h2>
-                    </header>
-                    <div class="media-flex-row">
-                        <div class="media-player-container">
-                            <audio controls style="width: 100%;">
-                                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                                您的瀏覽器不支援 audio 元素。
-                            </audio>
-                        </div>
-                        <div class="text-description">
-                            <p>這是我在多媒體課程中嘗試創作的音樂作品。這首曲子融合了清新與典雅的風格，使用低音提琴和鋼琴作為主旋律，營造出寧靜且略帶憂鬱的氛圍。在創作過程中，我特別關注節奏的變化和音色的層次感，以表達個人在學術與藝術探索中的心境。</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section5">
-                    <header>
-                        <h2>🎬 視訊作品</h2>
-                    </header>
-                    <div class="media-flex-row">
-                        <div class="media-player-container">
-                            <video controls style="width: 100%;">
-                                <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
-                                您的瀏覽器不支援 video 元素。
-                            </video>
-                        </div>
-                        <div class="text-description">
-                            <p>這是一部關於校園生活片段的短片。在剪輯上，我使用了快速切換和慢動作鏡頭，展現時間流逝中的細微變化。主要的敘事手法是通過色彩濾鏡和無人聲配樂，引導觀眾感受學生時代的單純與美好。作品中運用了 Premiere Pro 的色彩校正與運動追蹤技巧。</p>
-                        </div>
-                    </div>
-                </section>
-
-                <section id="section6">
-                    <header>
-                        <h2>🖼 圖片作品</h2>
-                    </header>
-                    <div class="image-gallery-grid">
-                        <div class="image-item">
-                            <figure>
-                                <img src="https://source.unsplash.com/random/400x300/?beach,shells" alt="貝殼沙灘">
-                                <figcaption>貝殼沙灘：低飽和海景的寧靜。</figcaption>
-                            </figure>
-                        </div>
-                        <div class="image-item">
-                            <figure>
-                                <img src="https://source.unsplash.com/random/400x300/?japan,island" alt="龍宮礁島">
-                                <figcaption>龍宮礁島：日式幻想風格的礁石群。</figcaption>
-                            </figure>
-                        </div>
-                        <div class="image-item">
-                            <figure>
-                                <img src="https://source.unsplash.com/random/400x300/?abstract,geometric" alt="抽象幾何">
-                                <figcaption>抽象幾何：探索色彩與結構的平衡。</figcaption>
-                            </figure>
-                        </div>
-                    </div>
-                </section>
+    <section id="portfolio">
+        <section id="music">
+            <h2>音樂作品</h2>
+            <div class="media">
+                <audio controls src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                <p>課程中的音樂創作練習，嘗試營造寧靜氛圍。</p>
             </div>
         </section>
 
-        <article id="section7">
-            <header>
-                <h2>🔗 更多資訊</h2>
-            </header>
-            
-            <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--spacing-md);">
-                <div>
-                    <h3>LLM 模型學習報告</h3>
-                    <p>這份報告探討了大型語言模型的架構與應用，歡迎參考。</p>
-                    <embed src="https://example.com/assets/pdf/llm-models.pdf" width="100%" height="400px" type="application/pdf">
-                </div>
-                
-                <div>
-                    <h3>聯絡與地點</h3>
-                    <details style="margin-bottom: var(--spacing-md);">
-                        <summary>點擊查看學習提示</summary>
-                        <p>建議攜帶筆記本與筆，方便隨時記錄課堂中的關鍵知識點與靈感。</p>
-                    </details>
-                    
-                    <h4 id="section-contact">聯絡地址：</h4>
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3615.0312674291847!2d121.5420310753697!3d25.03606707780076!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a98af1945199%3A0x6a1f185d46e30925!2sNational%20Taipei%20University%20of%20Education!5e0!3m2!1sen!2stw!4v1701290000000!5m2!1sen!2stw" width="100%" height="300px" style="border:0; border-radius: var(--border-radius);" allowfullscreen="" loading="lazy"></iframe>
-                    <p>國立台北教育大學 (地點示意)</p>
-                </div>
-            </section>
-        </article>
-        
-    </main>
-    
-    <footer>
-        <div class="container" style="padding: var(--spacing-md) 0;">
-            <p>聯絡我：s111316001@stu.ntue.edu.tw</p>
-            <time datetime="2025-11-29">最後更新日期：2025年11月29日</time>
-            <p>© 2025 闕文郁. All rights reserved.</p>
-        </div>
-    </footer>
+        <section id="video">
+            <h2>視訊作品</h2>
+            <div class="media">
+                <video controls width="100%" src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4"></video>
+                <p>校園生活剪輯短片，練習影片敘事與節奏。</p>
+            </div>
+        </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuToggle = document.getElementById('menu-toggle');
-            const navbarLinks = document.getElementById('navbar-links');
-            
-            // 處理漢堡選單的開關切換
-            const toggleMenu = () => {
-                navbarLinks.classList.toggle('open');
-            };
+        <section id="image">
+            <h2>圖片作品</h2>
+            <div class="gallery">
+                <img src="https://source.unsplash.com/random/400x300/?art">
+                <img src="https://source.unsplash.com/random/400x300/?nature">
+                <img src="https://source.unsplash.com/random/400x300/?abstract">
+            </div>
+        </section>
+    </section>
 
-            if (menuToggle) {
-                menuToggle.addEventListener('click', toggleMenu);
-            }
+    <section id="more">
+        <h2>更多資訊</h2>
+        <iframe src="https://www.google.com/maps?q=國立台北教育大學&output=embed" width="100%" height="300" style="border:0"></iframe>
+    </section>
 
-            // 處理作品集下拉選單
-            const portfolioToggle = document.getElementById('portfolio-toggle');
-            const portfolioDropdown = document.getElementById('portfolio-dropdown');
-            const portfolioDropdownLinks = portfolioDropdown.querySelectorAll('a');
+</main>
 
-            if (portfolioToggle) {
-                // 點擊作品集連結時，切換下拉選單的顯示狀態
-                portfolioToggle.addEventListener('click', (event) => {
-                    event.preventDefault(); // 阻止頁面跳轉
-                    portfolioDropdown.style.display = portfolioDropdown.style.display === 'block' ? 'none' : 'block';
-                });
-            }
+<footer>
+    <p>聯絡信箱：s111316001@stu.ntue.edu.tw</p>
+    <p>© 2025 闕文郁</p>
+</footer>
 
-            // 點擊下拉選單內的連結後，收起選單
-            portfolioDropdownLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    portfolioDropdown.style.display = 'none';
-                    // 如果是 mobile 模式，也要收起漢堡選單
-                    if (window.innerWidth <= 767) {
-                        navbarLinks.classList.remove('open');
-                    }
-                });
-            });
+<script>
+    const toggle = document.getElementById('menuToggle');
+    const nav = document.getElementById('nav');
+    toggle.addEventListener('click', () => nav.classList.toggle('open'));
 
-            // 點擊其他地方時，收起選單
-            document.addEventListener('click', (event) => {
-                if (portfolioToggle && !portfolioToggle.contains(event.target) && !portfolioDropdown.contains(event.target)) {
-                    portfolioDropdown.style.display = 'none';
-                }
-            });
+    document.querySelectorAll('.dropdown').forEach(d => {
+        d.addEventListener('click', () => {
+            d.querySelector('.dropdown-content').classList.toggle('open');
         });
-    </script>
+    });
+</script>
+
 </body>
 </html>
