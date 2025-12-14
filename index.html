@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>闕文郁 | 個人作品集部落格</title>
+    <title>闕文郁 | 個人作品集部落格 (優化版)</title>
     <style>
         /*
         ==============================
@@ -19,6 +19,9 @@
             --color-background: #FAFAFA; /* 背景色：近純白帶微灰調 */
             --color-card-background: #ffffff; /* 卡片背景色 */
             --color-accent: #E6C3CD; /* 強調色：典雅的粉色 */
+            --color-note-background: #fff8e1; /* 便利貼背景色 (淺黃/米白) */
+            --color-note-border: #ffd54f; /* 便利貼邊框色 */
+            --color-note-text: #5d4037; /* 便利貼文字色 (深棕) */
 
             /* 字體變數 */
             --font-family-sans: '微軟正黑體', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -49,7 +52,7 @@
         ==============================
         */
         * {
-            box-sizing: border-box; /* 基礎 Reset */
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
@@ -64,7 +67,7 @@
             line-height: 1.6;
             color: var(--color-text-dark);
             background-color: var(--color-background);
-            padding-top: 60px; /* 為了固定導覽列留出空間 */
+            padding-top: 60px; /* 為固定導覽列留出空間 */
         }
 
         a {
@@ -82,9 +85,13 @@
             margin-bottom: var(--spacing-sm);
         }
 
-        h1 { font-size: var(--font-size-h1); }
-        h2 { font-size: var(--font-size-h2); }
-        h3 { font-size: var(--font-size-h3); }
+        /* 樣式強化 3: 區塊標題下劃線 */
+        article > header h2 {
+            display: inline-block;
+            border-bottom: 3px solid var(--color-primary);
+            padding-bottom: 5px;
+            margin-bottom: var(--spacing-md);
+        }
 
         mark {
             background-color: var(--color-accent);
@@ -102,7 +109,6 @@
 
         section, article {
             padding: var(--spacing-lg) 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         /*
@@ -143,12 +149,11 @@
         nav a {
             padding: var(--spacing-xs) 0;
             font-weight: 500;
-            text-transform: uppercase;
             color: var(--color-text-dark);
-            border-bottom: 2px solid transparent; /* 預留底部邊框空間 */
+            border-bottom: 2px solid transparent;
         }
 
-        nav a:hover {
+        nav a:hover, nav a.active {
             color: var(--color-primary);
             border-bottom: 2px solid var(--color-primary);
         }
@@ -163,297 +168,176 @@
 
         /*
         ==============================
-        IV. 主內容區佈局
+        IV. 主內容區佈局 (包含便利貼位置調整)
         ==============================
         */
         main {
             display: flex;
-            flex-direction: column; /* 預設 Mobile-First: 堆疊 */
+            flex-direction: column; 
             gap: var(--spacing-md);
             padding: var(--spacing-md);
         }
 
-        article {
-            flex-grow: 1;
-            width: 100%;
+        /* 便利貼位置調整：僅在 "關於我" 區塊生效 */
+        #section1 {
+            position: relative; /* 作為 aside 的定位參考 */
+            padding-bottom: var(--spacing-lg); /* 確保內容不會被 float 元素遮擋 */
         }
 
-        /* 側邊欄 (Mobile 預設在內容下方) */
+        /* 側邊欄 (便利貼) - 2. 樣式調整與位置 */
         aside {
-            width: 100%;
+            /* 使用 float 佈局確保它緊貼文章，並由父元素 #section1 包含 */
+            float: right;
+            width: 100%; /* Mobile 預設佔滿寬度 */
+            max-width: 300px;
+            
             padding: var(--spacing-md);
-            background-color: var(--color-primary);
-            color: var(--color-text-light);
+            background-color: var(--color-note-background);
+            color: var(--color-note-text);
             border-radius: var(--border-radius);
+            margin-left: var(--spacing-md);
             margin-bottom: var(--spacing-md);
+            border: 1px solid var(--color-note-border);
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* 模擬便利貼的輕微陰影 */
         }
 
         aside h3 {
-            color: var(--color-text-light);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--color-note-text);
+            border-bottom: 2px dotted var(--color-note-border);
             padding-bottom: var(--spacing-xs);
+            margin-top: 0;
         }
 
         blockquote {
-            border-left: 5px solid var(--color-accent);
-            padding-left: var(--spacing-sm);
+            border-left: none; /* 移除預設的引用邊線 */
+            padding-left: 0;
+        }
+
+        /* 清除浮動 */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         /*
         ==============================
-        V. 區塊 2：三欄式特色介紹卡片 (響應式)
+        V. 區塊 3：響應式圖片畫廊 (輪播功能)
         ==============================
         */
-        .features-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobile: 單欄 */
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
-        }
-
-        .feature-card {
-            background-color: var(--color-card-background);
-            padding: var(--spacing-md);
+        .slider-container {
+            position: relative;
+            overflow: hidden; /* 隱藏超出視窗的圖片 */
+            margin: var(--spacing-md) 0;
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow-light);
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
             box-shadow: var(--shadow-hover);
         }
 
-        .feature-card h3 {
-            color: var(--color-secondary);
-            margin-top: var(--spacing-sm);
+        .image-slider {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
         }
 
-        /*
-        ==============================
-        VI. 區塊 3：響應式圖片畫廊 (Grid)
-        ==============================
-        */
-        .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: var(--spacing-md);
-            margin-top: var(--spacing-md);
+        .slide {
+            min-width: 100%; /* 確保每個 slide 佔滿容器寬度 */
+            transition: opacity 0.5s ease;
         }
 
-        .gallery-item {
-            position: relative;
-            overflow: hidden;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-light);
-        }
-
-        .gallery-item img {
+        .slide img {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: auto;
             display: block;
-            transition: transform 0.5s ease;
         }
 
-        .gallery-item:hover img {
-            transform: scale(1.05);
-        }
-
-        figcaption {
-            background-color: rgba(0, 0, 0, 0.6);
-            color: var(--color-text-light);
-            padding: var(--spacing-xs);
-            text-align: center;
+        .slider-button {
             position: absolute;
-            bottom: 0;
-            width: 100%;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: var(--spacing-sm);
+            cursor: pointer;
+            z-index: 10;
+            font-size: var(--font-size-large);
+            opacity: 0.8;
+            transition: opacity 0.3s;
         }
 
-        .gallery-item:hover figcaption {
+        .slider-button:hover {
             opacity: 1;
         }
 
-        /*
-        ==============================
-        VII. 其他元素樣式
-        ==============================
-        */
-        /* 關於我區塊的 Table */
-        .profile-table {
-            border-spacing: 20px;
-            margin: var(--spacing-md) 0;
-        }
+        #prevBtn { left: 0; border-radius: 0 var(--border-radius) var(--border-radius) 0; }
+        #nextBtn { right: 0; border-radius: var(--border-radius) 0 0 var(--border-radius); }
 
-        .profile-image {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid var(--color-primary);
-        }
-
-        /* 學習經歷/程式能力的 Table */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: var(--spacing-md) 0;
-            box-shadow: var(--shadow-light);
-            border-radius: var(--border-radius);
-            overflow: hidden; /* 確保圓角生效 */
-        }
-
-        th, td {
-            padding: var(--spacing-sm);
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        thead tr {
+        figcaption {
+            /* 輪播圖的描述可以放在 slider-container 外或內部的固定位置 */
+            position: relative;
             background-color: var(--color-primary);
-            color: var(--color-text-light);
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f8f8f8;
-        }
-
-        /* 媒體標籤 */
-        audio, video {
-            display: block;
-            width: 100%;
-            max-width: 450px;
-            margin: var(--spacing-md) 0;
-            border-radius: var(--border-radius);
-        }
-
-        /* 嵌入 PDF */
-        embed {
-            display: block;
-            width: 100%;
-            max-width: 800px;
-            margin: var(--spacing-md) auto;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-        }
-
-        /* 地圖 */
-        iframe {
-            display: block;
-            width: 100%;
-            max-width: 1000px;
-            height: 400px;
-            margin: var(--spacing-md) auto;
-            border: none !important;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-light);
-        }
-
-        /* 互動元素 */
-        details {
-            background-color: var(--color-card-background);
-            padding: var(--spacing-md);
-            border: 1px solid var(--color-primary);
-            border-radius: var(--border-radius);
-            margin-top: var(--spacing-md);
-        }
-
-        summary {
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--color-secondary);
-        }
-
-        /*
-        ==============================
-        VIII. 頁尾區
-        ==============================
-        */
-        footer {
-            background-color: var(--color-secondary);
-            color: var(--color-text-light);
+            color: var(--color-text-dark);
+            padding: var(--spacing-xs);
             text-align: center;
-            padding: var(--spacing-md) 0;
-            margin-top: var(--spacing-lg);
+        }
+        
+        /*
+        ==============================
+        VI. 樣式強化 (細節美化)
+        ==============================
+        */
+        /* 區塊 3: 特色卡片 hover 效果 */
+        .feature-card {
+            border-left: 5px solid var(--color-accent);
         }
 
-        footer p, footer time {
-            margin: var(--spacing-xs) 0;
+        /* 列表/表格的裝飾 */
+        table {
+            border: 1px solid var(--color-primary);
         }
-
+        
+        /* 連結/按鈕視覺強化 */
+        .profile-table a {
+            color: var(--color-accent);
+            font-weight: bold;
+        }
 
         /*
         ==============================
-        IX. 響應式設計 (RWD - Mobile-First 媒體查詢)
+        VII. 響應式設計 (RWD)
         ==============================
         */
-
-        /* 平板 (Tablet) - 寬度大於 768px */
         @media (min-width: 768px) {
             /* 導覽列調整 */
             .navbar-content {
                 padding: var(--spacing-sm) var(--spacing-lg);
             }
 
-            /* 主內容區佈局 (使用 Grid 實現兩欄式佈局，並拒絕 float) */
+            /* 主內容區佈局 - 使用 Grid */
             main {
-                display: grid;
-                grid-template-columns: 3fr 1fr; /* 右側側邊欄佔 1/4 */
-                gap: var(--spacing-lg);
-                padding: var(--spacing-lg) 0;
+                display: block; /* 移除 Grid, 讓 aside float 於 #section1 內 */
             }
 
-            /* 側邊欄在右側 */
+            /* 側邊欄 (便利貼) - 在平板/桌機模式下，只浮動在「關於我」區塊內 */
             aside {
-                grid-column: 2 / 3;
-                grid-row: 1 / span 5; /* 讓側邊欄跨越多個區塊，但僅在主內容區域內 */
+                position: relative;
+                float: right;
+                width: 30%;
+                margin-left: var(--spacing-md);
                 margin-top: 0;
             }
 
-            article {
-                grid-column: 1 / 2;
-                width: auto;
-            }
-
-            /* 三欄式特色介紹 */
-            .features-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-
-            /* 圖片畫廊調整 */
-            .gallery-grid {
-                gap: var(--spacing-lg);
+            /* 確保「關於我」區塊內的其他內容不會因為 float 而混亂 */
+            #section1 > section:nth-of-type(2) {
+                clear: both;
             }
         }
 
-        /* 桌機 (Desktop) - 寬度大於 1024px */
-        @media (min-width: 1024px) {
-            :root {
-                --font-size-h1: 2.5rem;
-                --font-size-h2: 2rem;
-            }
-            
-            /* 關於我圖片調整 */
-            .profile-image {
-                width: 250px;
-                height: 250px;
-            }
-
-            /* 確保側邊欄不會因為內容變少而太短 */
-            main {
-                grid-template-rows: auto 1fr;
-            }
-        }
-
-        /* Mobile 導覽列顯示漢堡選單 */
+        /* Mobile 導覽列 */
         @media (max-width: 767px) {
             nav {
-                display: none; /* 預設隱藏導覽列 */
+                display: none;
                 position: absolute;
-                top: 60px; /* 位於 header 下方 */
+                top: 60px;
                 left: 0;
                 width: 100%;
                 background-color: var(--color-card-background);
@@ -463,7 +347,7 @@
             }
 
             nav.open {
-                display: block; /* JS 控制顯示 */
+                display: block;
             }
 
             nav ul {
@@ -481,14 +365,21 @@
             }
 
             .menu-toggle {
-                display: block; /* 顯示漢堡選單按鈕 */
+                display: block;
+            }
+
+            /* Mobile 模式下，便利貼佔滿寬度 */
+            aside {
+                float: none;
+                max-width: 100%;
+                margin: 0 0 var(--spacing-md) 0;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="navbar-content">
+        <div class="navbar-content container">
             <h1 class="logo">闕文郁 Blog</h1>
             
             <div class="menu-toggle" id="menu-toggle">☰</div>
@@ -497,9 +388,8 @@
                 <ul>
                     <li><a href="#section-hero">首頁</a></li>
                     <li><a href="#section1">關於我</a></li>
-                    <li><a href="#section-features">專案特色</a></li>
-                    <li><a href="#section4">作品集</a></li>
-                    <li><a href="#section7">更多資訊</a></li>
+                    <li><a href="#section-portfolio">專案/作品集</a></li>
+                    <li><a href="#section7">其他資訊</a></li>
                     <li><a href="#section-contact">聯絡我</a></li>
                 </ul>
             </nav>
@@ -508,21 +398,13 @@
     
     <main class="container">
         
-        <aside>
-            <blockquote>
-                <h3>📝 便利貼</h3>
-                <p>多媒體概論課程的學習成果作品集，將在此呈現。這裡是紀錄學習和生活點滴的典雅小站。</p>
-                <p><strong>風格關鍵詞：</strong> 典雅、清新、資訊科學與人文藝術的交會。</p>
-            </blockquote>
-        </aside>
-
         <article id="section-hero">
             <header>
                 <h2>✨ 歡迎來到我的學習空間</h2>
                 <p>本作品集收錄了我在資訊科學學習、音樂創作、視覺藝術上的主要成果。</p>
             </header>
             
-            <section class="features-grid" id="section-features">
+            <section class="features-grid">
                 <div class="feature-card">
                     <span style="font-size:2rem;">💻</span>
                     <h3>程式思維</h3>
@@ -536,33 +418,43 @@
                 <div class="feature-card">
                     <span style="font-size:2rem;">📚</span>
                     <h3>跨領域探索</h3>
-                    <p>熱衷於文學、藝術等領域，透過跨學科的視角豐富作品的深度與廣度。</p>
+                    <p>熱衷於文學、藝術等領域，豐富作品的深度與廣度。</p>
                 </div>
             </section>
         </article>
 
-        <article id="section1">
+        <article id="section1" class="clearfix">
             <header>
                 <h2>🙋‍♀️ 關於我</h2>
-                <p>在此部落格中，將分享我在學習上及生活中的點滴。我是一位大學生，同時對文學及藝術都有深厚的興趣。</p>
             </header>
-            <section style="display: flex; align-items: center; gap: 20px;">
+            
+            <aside>
+                <blockquote>
+                    <h3>📝 便利貼</h3>
+                    <p>學習成果作品集在此呈現。紀錄學習與生活點滴的典雅小站。</p>
+                </blockquote>
+            </aside>
+            
+            <section style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px;">
                 <img src="https://source.unsplash.com/random/250x250/?portrait,student" alt="個人肖像照" class="profile-image">
                 <div>
                     <h1>闕文郁</h1>
                     <p>
                         <em><strong><a href="https://www.ntue.edu.tw/">國立台北教育大學</a></strong>學生</em>
                     </p>
-                    <p>目前就讀於<mark>資訊科學系</mark>，也時常選修相關課程以豐富眼界。興趣包括追劇、追星、畫畫等。</p>
+                    <p>目前就讀於<mark>資訊科學系</mark>，同時對文學及藝術都有深厚的興趣。</p>
+                    <p>興趣：追劇、追星、畫畫。</p>
                 </div>
             </section>
         </article>
-
-        <article id="section2">
+        
+        <article id="section-portfolio">
             <header>
-                <h2>🎓 學習經歷</h2>
+                <h2>📂 專案/作品集</h2>
             </header>
-            <section>
+
+            <section id="section2">
+                <h3>🎓 學習經歷</h3>
                 <table>
                     <thead>
                         <tr>
@@ -571,95 +463,78 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>2021-2024</td>
-                            <td>台北市立內湖高級中學</td>
-                        </tr>
-                        <tr>
-                            <td>2024-迄今</td>
-                            <td>國立台北教育大學資訊科學系</td>
-                        </tr>
+                        <tr> <td>2021-2024</td> <td>台北市立內湖高級中學</td> </tr>
+                        <tr> <td>2024-迄今</td> <td>國立台北教育大學資訊科學系</td> </tr>
                     </tbody>
                 </table>
             </section>
-        </article>
 
-        <article id="section3">
-            <header>
-                <h2>🛠 程式能力</h2>
-                <p>我在不同程式語言的熟練度概況。</p>
-            </header>
-            <section>
+            <section id="section3">
+                <h3>🛠 程式能力</h3>
                 <table>
-                    <tr>
-                        <td>Java</td>
-                        <td>⭐⭐ (熟悉物件導向與基礎演算法)</td>
-                    </tr>
-                    <tr>
-                        <td>C++</td>
-                        <td>⭐⭐ (具備 LeetCode 刷題能力)</td>
-                    </tr>
-                    <tr>
-                        <td>Python</td>
-                        <td>⭐ (基礎語法與資料分析應用)</td>
-                    </tr>
-                    <tr>
-                        <td>HTML/CSS</td>
-                        <td>⭐⭐⭐ (具備響應式設計能力)</td>
-                    </tr>
+                    <tr> <td>Java</td> <td>⭐⭐</td> </tr>
+                    <tr> <td>C++</td> <td>⭐⭐</td> </tr>
+                    <tr> <td>Python</td> <td>⭐</td> </tr>
+                    <tr> <td>HTML/CSS</td> <td>⭐⭐⭐</td> </tr>
                 </table>
             </section>
-        </article>
 
-        <article id="section4">
-            <h2>🎶 音訊作品</h2>
-            <p>這是我在多媒體課程中嘗試創作的音樂作品。</p>
-            <audio controls>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                您的瀏覽器不支援 audio 元素。
-            </audio>
-        </article>
+            <section id="section4">
+                <h3>🎶 音訊作品</h3>
+                <p>這是我在多媒體課程中嘗試創作的音樂作品。</p>
+                <audio controls>
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                    您的瀏覽器不支援 audio 元素。
+                </audio>
+            </section>
 
-        <article id="section5">
-            <h2>🎬 視訊作品</h2>
-            <p>兩部短片展示了我的剪輯與敘事能力。</p>
-            <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
-                <video controls width="100%" max-width="450">
-                    <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
-                    您的瀏覽器不支援 video 元素。
-                </video>
-                <video controls width="100%" max-width="450">
-                    <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
-                    您的瀏覽器不支援 video 元素。
-                </video>
-            </div>
-        </article>
+            <section id="section5">
+                <h3>🎬 視訊作品</h3>
+                <p>兩部短片展示了我的剪輯與敘事能力。</p>
+                <div style="display: flex; flex-wrap: wrap; gap: var(--spacing-md);">
+                    <video controls width="100%" max-width="450">
+                        <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
+                        您的瀏覽器不支援 video 元素。
+                    </video>
+                    <video controls width="100%" max-width="450">
+                        <source src="https://file-examples.com/storage/feac9941a364175510b6563/2017/04/file_example_MP4_480_1_5MG.mp4" type="video/mp4">
+                        您的瀏覽器不支援 video 元素。
+                    </video>
+                </div>
+            </section>
 
-        <article id="section6">
-            <h2>🖼 視覺藝術作品 (Gemini練習)</h2>
-            <p>透過 AI 協作工具 Gemini 進行的圖像創作與練習成果。</p>
-            <section class="gallery-grid">
-                <figure class="gallery-item">
-                    <img src="https://source.unsplash.com/random/600x400/?beach,shells" alt="貝殼沙灘">
-                    <figcaption>貝殼沙灘：低飽和海景的寧靜</figcaption>
-                </figure>
-                <figure class="gallery-item">
-                    <img src="https://source.unsplash.com/random/600x400/?japan,island" alt="龍宮礁島">
-                    <figcaption>龍宮礁島：日式幻想風格的礁石群</figcaption>
-                </figure>
-                <figure class="gallery-item">
-                    <img src="https://source.unsplash.com/random/600x400/?abstract,geometric" alt="抽象幾何">
-                    <figcaption>抽象幾何：探索色彩與結構的平衡</figcaption>
-                </figure>
+            <section id="section6">
+                <h3>🖼 視覺藝術作品 (Gemini練習)</h3>
+                <p>透過 AI 協作工具 Gemini 進行的圖像創作與練習成果。</p>
+
+                <div class="slider-container">
+                    <div class="image-slider" id="imageSlider">
+                        <figure class="slide">
+                            <img src="https://source.unsplash.com/random/800x600/?beach,shells" alt="貝殼沙灘">
+                        </figure>
+                        <figure class="slide">
+                            <img src="https://source.unsplash.com/random/800x600/?japan,island" alt="龍宮礁島">
+                        </figure>
+                        <figure class="slide">
+                            <img src="https://source.unsplash.com/random/800x600/?abstract,geometric" alt="抽象幾何">
+                        </figure>
+                    </div>
+
+                    <button class="slider-button" id="prevBtn">❮</button>
+                    <button class="slider-button" id="nextBtn">❯</button>
+                    
+                </div>
+                <figcaption id="sliderCaption">貝殼沙灘：低飽和海景的寧靜</figcaption>
             </section>
         </article>
 
         <article id="section7">
-            <h2>🔗 更多資訊</h2>
+            <header>
+                <h2>🔗 其他資訊</h2>
+            </header>
             
             <h3>LLM 模型學習報告</h3>
             <embed src="https://example.com/assets/pdf/llm-models.pdf" width="500" height="600" type="application/pdf">
-            <p>（此處為佔位 PDF 連結，請替換為您實際的 PDF 檔案路徑）</p>
 
             <details>
                 <summary>點擊查看學習提示</summary>
@@ -677,43 +552,103 @@
     <footer>
         <p>聯絡我：s111316001@stu.ntue.edu.tw</p>
         <time datetime="2025-11-29">最後更新日期：2025年11月29日</time>
-        <p>&copy; 2025 闕文郁. All rights reserved.</p>
+        <p>© 2025 闕文郁. All rights reserved.</p>
     </footer>
 
     <script>
-        // 邏輯必須封裝在函數中
         document.addEventListener('DOMContentLoaded', () => {
             const menuToggle = document.getElementById('menu-toggle');
             const navbarLinks = document.getElementById('navbar-links');
             const navLinks = navbarLinks.querySelectorAll('a');
 
-            /**
-             * 處理漢堡選單的開關切換
-             */
+            // 輪播相關元素
+            const slider = document.getElementById('imageSlider');
+            const slides = slider ? slider.querySelectorAll('.slide') : [];
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const sliderCaption = document.getElementById('sliderCaption');
+            let currentSlide = 0;
+            const captions = [
+                '貝殼沙灘：低飽和海景的寧靜',
+                '龍宮礁島：日式幻想風格的礁石群',
+                '抽象幾何：探索色彩與結構的平衡'
+            ];
+
+            // 導覽列邏輯
             const toggleMenu = () => {
                 navbarLinks.classList.toggle('open');
             };
 
-            /**
-             * 處理點擊導覽連結 (在 Mobile 模式下)
-             */
-            const handleNavLinkClick = () => {
-                // 檢查視窗寬度是否小於 768px (與 CSS 媒體查詢保持一致)
+            const handleNavLinkClick = (event) => {
+                // 在 Mobile 模式下，點擊連結後自動關閉選單
                 if (window.innerWidth <= 767) {
                     navbarLinks.classList.remove('open');
                 }
+                // (可選) 增加導覽列點擊的 active 狀態
+                navLinks.forEach(link => link.classList.remove('active'));
+                event.currentTarget.classList.add('active');
             };
 
-            // 1. 漢堡選單事件監聽器
             if (menuToggle) {
                 menuToggle.addEventListener('click', toggleMenu);
             }
 
-            // 2. 導覽列連結點擊事件監聽器
-            // 點擊連結後，如果是在 Mobile 模式，自動關閉選單
             navLinks.forEach(link => {
                 link.addEventListener('click', handleNavLinkClick);
             });
+
+            // 圖片輪播邏輯 (4. 圖片作品輪播功能)
+            /**
+             * 顯示指定索引的投影片
+             * @param {number} index 投影片索引
+             */
+            const showSlide = (index) => {
+                if (slides.length === 0) return;
+
+                // 循環邏輯
+                if (index >= slides.length) {
+                    currentSlide = 0;
+                } else if (index < 0) {
+                    currentSlide = slides.length - 1;
+                } else {
+                    currentSlide = index;
+                }
+
+                // 計算 translateX 值以移動投影片
+                const offset = -currentSlide * 100;
+                slider.style.transform = `translateX(${offset}%)`;
+
+                // 更新圖說文字
+                if (sliderCaption && captions[currentSlide]) {
+                    sliderCaption.textContent = captions[currentSlide];
+                }
+            };
+
+            /**
+             * 切換到下一張投影片
+             */
+            const nextSlide = () => {
+                showSlide(currentSlide + 1);
+            };
+
+            /**
+             * 切換到上一張投影片
+             */
+            const prevSlide = () => {
+                showSlide(currentSlide - 1);
+            };
+
+            if (slider) {
+                // 設置初始圖說
+                showSlide(0);
+
+                // 按鈕事件監聽器
+                if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+                if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+
+                // 自動播放 (可選)
+                // setInterval(nextSlide, 5000); 
+            }
         });
     </script>
 </body>
