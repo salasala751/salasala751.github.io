@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河內塔挑戰賽 - Tower of Hanoi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --pillar-color: #4b5563;
+            --bg-color: #f3f4f6;
+        }
+
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            touch-action: manipulation;
+        }
+
+        /* 遊戲區域容器 */
+        .game-area {
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            height: 380px;
+            align-items: end;
+        }
+
+        .pillar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pillar-container {
+            width: 100%;
+            height: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 12px;
+        }
+
+        .pillar-container:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .pillar-container.selected {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* 柱子核心 */
+        .pillar-core {
+            width: 14px;
+            height: 240px;
+            background-color: var(--pillar-color);
+            border-radius: 7px 7px 0 0;
+            position: absolute;
+            bottom: 12px; /* 剛好在基座上方 */
+            z-index: 1;
+        }
+
+        /* 柱子基座 (地面) */
+        .pillar-base {
+            width: 90%;
+            height: 12px;
+            background-color: var(--pillar-color);
+            border-radius: 6px;
+            position: absolute;
+            bottom: 0px;
+            z-index: 2;
+        }
+
+        /* 標籤 (A, B, C) */
+        .pillar-label {
+            font-weight: 900;
+            font-size: 1.75rem;
+            color: #1f2937;
+            margin-top: 15px;
+            text-shadow: 1px 1px 0px white;
+        }
+
+        .ring-layer {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .ring {
+            height: 26px;
+            border-radius: 13px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        /* 被選中時的懸浮狀態 */
+        .ring-selected {
+            transform: translate(-50%, -40px);
+            box-shadow: 0 15px 20px rgba(59, 130, 246, 0.5);
+            z-index: 20;
+        }
+
+        @keyframes success-pop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-animate {
+            animation: success-pop 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center min-h-screen p-4">
+
+    <!-- 1. 右上角個人資訊 -->
+    <div class="fixed top-4 right-4 bg-white px-5 py-2 rounded-xl shadow-lg border-2 border-blue-500 z-50">
+        <span class="text-blue-700 font-black tracking-wider">111316001 闕文郁</span>
+    </div>
+
+    <!-- 標題與數據區 -->
+    <header class="w-full max-w-2xl text-center mt-12 mb-6">
+        <h1 class="text-4xl font-black text-gray-800 mb-3 tracking-tight">河內塔挑戰賽</h1>
+        <div id="target-indicator" class="mb-5 inline-block bg-yellow-100 text-yellow-800 px-6 py-2 rounded-full font-bold border-2 border-yellow-300 shadow-sm">
+            請點擊下方按鈕設定遊戲
+        </div>
+        
+        <div class="flex justify-around bg-white p-5 rounded-2xl shadow-md border border-gray-200">
+            <div>
+                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Moves</p>
+                <p id="move-count" class="text-3xl font-mono font-black text-blue-600">0</p>
+            </div>
+            <div class="border-x border-gray-100 px-8">
+                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Time</p>
+                <p id="timer" class="text-3xl font-mono font-black text-blue-600">00:00</p>
+            </div>
+            <div>
+                <p class="text-gray-400 text-xs font-bold uppercase mb-1">Rings</p>
+                <p id="ring-display" class="text-3xl font-mono font-black text-blue-600">3</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- 遊戲主體區 -->
+    <main class="game-area">
+        <!-- 柱子 A -->
+        <div class="pillar-group">
+            <div class="pillar-container" onclick="handlePillarClick(0)" id="pillar-0">
+                <div class="pillar-core"></div>
+                <div class="pillar-base"></div>
+                <div id="rings-0" class="ring-layer"></div>
+            </div>
+            <div class="pillar-label">A</div>
+        </div>
+        <!-- 柱子 B -->
+        <div class="pillar-group">
+            <div class="pillar-container" onclick="handlePillarClick(1)" id="pillar-1">
+                <div class="pillar-core"></div>
+                <div class="pillar-base"></div>
+                <div id="rings-1" class="ring-layer"></div>
+            </div>
+            <div class="pillar-label">B</div>
+        </div>
+        <!-- 柱子 C -->
+        <div class="pillar-group">
+            <div class="pillar-container" onclick="handlePillarClick(2)" id="pillar-2">
+                <div class="pillar-core"></div>
+                <div class="pillar-base"></div>
+                <div id="rings-2" class="ring-layer"></div>
+            </div>
+            <div class="pillar-label">C</div>
+        </div>
+    </main>
+
+    <!-- 控制按鈕 -->
+    <footer class="mt-12">
+        <button onclick="openSettings()" class="px-10 py-3 bg-gray-800 text-white rounded-xl hover:bg-black transition-all font-bold shadow-lg active:scale-95">設定與重啟遊戲</button>
+    </footer>
+
+    <!-- 設定彈窗 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-xs w-full modal-animate">
+            <h2 class="text-2xl font-black mb-8 text-center text-gray-800">遊戲設定</h2>
+            <div class="mb-8">
+                <label class="block text-gray-500 mb-4 font-bold text-sm uppercase tracking-widest">圓環數量 (3-8)</label>
+                <input type="range" id="ring-slider" min="3" max="8" value="3" class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600" oninput="updateSliderLabel(this.value)">
+                <div class="text-center mt-4 text-4xl font-black text-blue-600" id="slider-val">3</div>
+            </div>
+            <button onclick="startGame()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200">開始挑戰</button>
+        </div>
+    </div>
+
+    <!-- 勝利彈窗 -->
+    <div id="win-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-10 rounded-3xl shadow-2xl max-w-sm w-full text-center modal-animate">
+            <div class="text-7xl mb-6">🎉</div>
+            <h2 class="text-3xl font-black mb-2 text-gray-800">完美達成！</h2>
+            <p id="win-message" class="text-gray-500 mb-8 font-medium">您已將所有圓環移至目標位置。</p>
+            <div class="grid grid-cols-2 gap-4 mb-10 bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <div>
+                    <p class="text-xs text-blue-400 uppercase font-black mb-1">Total Moves</p>
+                    <p id="final-moves" class="text-3xl font-mono font-black text-blue-700">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-blue-400 uppercase font-black mb-1">Total Time</p>
+                    <p id="final-time" class="text-3xl font-mono font-black text-blue-700">-</p>
+                </div>
+            </div>
+            <button onclick="openSettings()" class="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg hover:bg-blue-700 transition shadow-xl shadow-blue-200">再玩一局</button>
+        </div>
+    </div>
+
+    <!-- 提示消息 -->
+    <div id="toast" class="fixed bottom-10 bg-red-600 text-white px-8 py-3 rounded-2xl shadow-2xl opacity-0 transition-all duration-300 transform translate-y-4 pointer-events-none z-50 font-bold">
+        規則錯誤：大環不能疊在小環上！
+    </div>
+
+    <script>
+        let ringCount = 3;
+        let rods = [[], [], []];
+        let selectedRod = null;
+        let moveCount = 0;
+        let startTime = null;
+        let timerInterval = null;
+        let isGameActive = false;
+        let targetPillar = 0;
+
+        const rodNames = ['A', 'B', 'C'];
+        const ringColors = [
+            '#ef4444', '#f97316', '#f59e0b', '#10b981', 
+            '#3b82f6', '#6366f1', '#8b5cf6', '#d946ef'
+        ];
+
+        function startGame() {
+            ringCount = parseInt(document.getElementById('ring-slider').value);
+            document.getElementById('ring-display').innerText = ringCount;
+            document.getElementById('settings-modal').classList.add('hidden');
+            document.getElementById('win-modal').classList.add('hidden');
+            
+            // 隨機指定目標柱子
+            targetPillar = Math.floor(Math.random() * 3);
+            const indicator = document.getElementById('target-indicator');
+            indicator.innerText = `任務：請將所有圓環移至 ${rodNames[targetPillar]} 柱`;
+            indicator.className = "mb-5 inline-block bg-blue-600 text-white px-6 py-2 rounded-full font-bold shadow-lg ring-4 ring-blue-100";
+
+            resetGameState();
+            render();
+            startTimer();
+        }
+
+        function resetGameState() {
+            rods = [[], [], []];
+            
+            // 隨機分佈
+            for (let i = ringCount; i > 0; i--) {
+                const randomRodIdx = Math.floor(Math.random() * 3);
+                rods[randomRodIdx].push(i);
+            }
+
+            // 如果隨機完剛好是贏的狀態，重來
+            if (rods[targetPillar].length === ringCount) {
+                resetGameState();
+                return;
+            }
+            
+            moveCount = 0;
+            selectedRod = null;
+            isGameActive = true;
+            document.getElementById('move-count').innerText = '0';
+            
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = '00:00';
+            startTime = Date.now();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const secs = (elapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function openSettings() {
+            clearInterval(timerInterval);
+            document.getElementById('settings-modal').classList.remove('hidden');
+            document.getElementById('win-modal').classList.add('hidden');
+            isGameActive = false;
+        }
+
+        function updateSliderLabel(val) {
+            document.getElementById('slider-val').innerText = val;
+        }
+
+        function handlePillarClick(index) {
+            if (!isGameActive) return;
+
+            if (selectedRod === null) {
+                if (rods[index].length === 0) return;
+                selectedRod = index;
+                highlightPillar(index, true);
+            } 
+            else {
+                if (selectedRod === index) {
+                    highlightPillar(index, false);
+                    selectedRod = null;
+                    return;
+                }
+
+                const ringToMove = rods[selectedRod][rods[selectedRod].length - 1];
+                const targetTopRing = rods[index][rods[index].length - 1];
+
+                if (targetTopRing && ringToMove > targetTopRing) {
+                    showToast();
+                    highlightPillar(selectedRod, false);
+                    selectedRod = null;
+                    return;
+                }
+
+                rods[index].push(rods[selectedRod].pop());
+                moveCount++;
+                document.getElementById('move-count').innerText = moveCount;
+
+                highlightPillar(selectedRod, false);
+                selectedRod = null;
+                render();
+                checkWin();
+            }
+        }
+
+        function highlightPillar(index, active) {
+            const el = document.getElementById(`pillar-${index}`);
+            if (active) {
+                el.classList.add('selected');
+                const rings = el.querySelectorAll('.ring');
+                if (rings.length > 0) {
+                    rings[rings.length - 1].classList.add('ring-selected');
+                }
+            } else {
+                document.querySelectorAll('.pillar-container').forEach(p => p.classList.remove('selected'));
+                document.querySelectorAll('.ring').forEach(r => r.classList.remove('ring-selected'));
+            }
+        }
+
+        function render() {
+            for (let i = 0; i < 3; i++) {
+                const container = document.getElementById(`rings-${i}`);
+                container.innerHTML = ''; 
+
+                rods[i].forEach((size, index) => {
+                    const ring = document.createElement('div');
+                    ring.className = 'ring';
+                    const widthPercent = 35 + (size * (60 / ringCount));
+                    ring.style.width = `${widthPercent}%`;
+                    ring.style.backgroundColor = ringColors[size - 1];
+                    
+                    // 落地計算：基座高度為 12px，每個環高 26px
+                    // 底部距離 = 12 (基座) + (索引 * 環高)
+                    ring.style.bottom = `${12 + (index * 26)}px`;
+                    
+                    ring.innerText = size;
+                    container.appendChild(ring);
+                });
+            }
+        }
+
+        function checkWin() {
+            if (rods[targetPillar].length === ringCount) {
+                isGameActive = false;
+                clearInterval(timerInterval);
+                
+                setTimeout(() => {
+                    document.getElementById('final-moves').innerText = moveCount;
+                    document.getElementById('final-time').innerText = document.getElementById('timer').innerText;
+                    document.getElementById('win-modal').classList.remove('hidden');
+                }, 400);
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(16px)';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
